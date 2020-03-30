@@ -13,16 +13,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import br.com.caelum.eats.model.Role;
-import br.com.caelum.eats.service.JwtAuthenticationEntryPoint;
-import br.com.caelum.eats.service.JwtAuthenticationFilter;
-import br.com.caelum.eats.service.UserService;
+import br.com.caelum.eats.seguranca.JwtAuthenticationEntryPoint;
+import br.com.caelum.eats.seguranca.JwtAuthenticationFilter;
+import br.com.caelum.eats.seguranca.Role;
+import br.com.caelum.eats.seguranca.UserService;
 import lombok.AllArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private UserService userService;
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 				.antMatchers("/restaurantes/**", "/pedidos/**", "/pagamentos/**", "/tipos-de-cozinha/**", "/formas-de-pagamento/**").permitAll()
+				.antMatchers("/socket/**").permitAll()
 				.antMatchers("/auth/**").permitAll()
 				.antMatchers("/actuator/**").permitAll()
 				.antMatchers("/admin/**").hasRole(Role.ROLES.ADMIN.name())
@@ -52,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(this.userService).passwordEncoder(this.passwordEncoder);
+		auth.userDetailsService(userService).passwordEncoder(this.passwordEncoder);
 	}
 
 	@Override
@@ -60,7 +61,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	
-
 
 }
