@@ -21,7 +21,8 @@ class RestauranteController {
 
 	private RestauranteRepository restauranteRepo;
 	private CardapioRepository cardapioRepo;
-
+	private DistanciaRestClient distanciaRestClient;
+	
 	@GetMapping("/restaurantes/{id}")
 	RestauranteDto detalha(@PathVariable("id") Long id) {
 		Restaurante restaurante = restauranteRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException());
@@ -55,12 +56,23 @@ class RestauranteController {
 		return restauranteSalvo;
 	}
 
+	@Transactional
 	@PutMapping("/parceiros/restaurantes/{id}")
 	Restaurante atualiza(@RequestBody Restaurante restaurante) {
 		Restaurante doBD = restauranteRepo.getOne(restaurante.getId());
 		restaurante.setUser(doBD.getUser());
 		restaurante.setAprovado(doBD.getAprovado());
-		return restauranteRepo.save(restaurante);
+		Restaurante salvo = restauranteRepo.save(restaurante);
+		
+		if (!restaurante.getTipoDeCozinha().getId().equals(doBD.getTipoDeCozinha().getId())
+				||
+			!restaurante.getCep().equals(doBD.getCep())) {
+			
+			distanciaRestClient.restauranteAtualizado(restaurante);
+		}
+		
+		
+		return salvo;
 	}
 
 	@GetMapping("/admin/restaurantes/em-aprovacao")
@@ -73,5 +85,8 @@ class RestauranteController {
 	@PatchMapping("/admin/restaurantes/{id}")
 	public void aprova(@PathVariable("id") Long id) {
 		restauranteRepo.aprovaPorId(id);
+		
+		Restaurante restaurante = restauranteRepo.getOne(id);
+		distanciaRestClient.novoRestauranteAprovado(restaurante);
 	}
 }
