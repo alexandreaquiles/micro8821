@@ -3,6 +3,8 @@ package br.com.caelum.eats.restaurante;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +13,10 @@ import org.springframework.web.client.RestTemplate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 class DistanciaRestClient {
 
 	private RestTemplate restTemplate;
@@ -39,8 +43,11 @@ class DistanciaRestClient {
 		
 	}
 	
+	@Retryable(maxAttempts = 5, backoff = @Backoff(delay = 2000, multiplier = 2))
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	void restauranteAtualizado(Restaurante restaurante) {
+		log.info("monólito tentando chamar distancia-service");
+
 		RestauranteParaDistancia restauranteParaDistancia = new RestauranteParaDistancia(restaurante);
 		
 		String url = distanciaServiceUrl + "/restaurantes/" + restauranteParaDistancia.getId();

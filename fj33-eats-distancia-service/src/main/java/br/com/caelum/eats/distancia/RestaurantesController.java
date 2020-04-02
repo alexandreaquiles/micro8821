@@ -40,10 +40,12 @@ class RestaurantesController {
 	Restaurante atualiza(@PathVariable("id") Long id, @RequestBody Restaurante restaurante) {
 		log.info("Atualizando o restaurante:  " + restaurante);
 
-		if (!repo.existsById(id)) {
-			throw new ResourceNotFoundException();
-		}
-		return repo.save(restaurante);
+		throw new RuntimeException("Errrrou!");
+		
+//		if (!repo.existsById(id)) {
+//			throw new ResourceNotFoundException();
+//		}
+//		return repo.save(restaurante);
 	}
 	
 	
