@@ -34,7 +34,7 @@ services:
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: eats
-      RABBITMQ_DEFAULT_PASS: caelum1234
+      RABBITMQ_DEFAULT_PASS: caelum123
 volumes:
   mysql.eats.monolito:
   mysql.eats.pagamento:
